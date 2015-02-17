@@ -4,3 +4,10 @@ dist
 .sass-cache
 bower_components
 test/bower_components
+
+node_modules/
+bower_components/
+*.log
+
+build/
+dist/

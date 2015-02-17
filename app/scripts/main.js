@@ -20,12 +20,14 @@
         series: series
     } );
 
+    var format = function(d) {
+        d = new Date(d * 1000);
+        return d3.time.format('%a %H:%M')(d);
+    };
+    
     var xAxis = new Rickshaw.Graph.Axis.X({
         graph: graph,
-        tickFormat: function(x) {
-            var date = new Date(x * 1000);
-            return date.toLocaleFormat('%a %R');
-        }
+        tickFormat: format
     });
 
     xAxis.render();
@@ -34,7 +36,7 @@
         graph: graph,
         orientation: 'left',
         tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
-        element: document.getElementById('y_axis'),
+        element: document.getElementById('y_axis')
     } );
 
     yAxis.render();

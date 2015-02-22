@@ -104,7 +104,7 @@
                  * http://stackoverflow.com/questions/3546900/jquery-get-text-as-number */
                 var selectedId = +(selectEl.select('option:selected').val());
 
-                selectEl.find('option').remove();
+                selectEl.children().remove();
                 _.chain(response)
                     .filter(function(item) { return item.observationCount > 1; })
                     .sortBy( function(a) { return a.medium; } )

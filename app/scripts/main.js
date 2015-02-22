@@ -97,32 +97,75 @@
         }
     };
     var leapi = {              
-        loadMetricList: function(el, select) {
+        loadMetricList: function(el, selected) {
             jQuery.get(hosturl + '/metrics', function ( response ) {
-                var options = $(el);
+                var selectEl = $(el);
+                /* selectedId is always a number, see
+                 * http://stackoverflow.com/questions/3546900/jquery-get-text-as-number */
+                var selectedId = +(selectEl.select('option:selected').val());
+
+                selectEl.find('option').remove();
                 _.chain(response)
-                    .filter(function(item) { return item.observation_count > 1 })
+                    .filter(function(item) { return item.observationCount > 1; })
+                    .sortBy( function(a) { return a.medium; } )
                     .each( function(item) {
-                        options.append($('<option />').val(item.id).text(item.medium + ' ' + item.name));
+                        var optionEl = $('<option />').val(item.id).text(item.medium + ' ' + item.name);
+                        if (item.id === selectedId) {
+                            optionEl.prop('selected',true);
+                        }
+                        selectEl.append(optionEl);
                     });
-                select = typeof select !== 'undefined' ? select : false;
-                if(select) {
-                    $(metricSelector + ' option:contains("' +  select +'")').prop('selected',true).change();
+
+                selected = typeof(selected) !== 'undefined' ? selected : false;
+                if(selected) {
+                    selectEl.select('option:contains("' +  selected +'")').prop('selected',true).change();
                 }
-                } );
+            });
         },
-        loadTimeSeries: function(metric, name, graph) {
-            var dataUrl = hosturl + '/stroubles1/timeseries?metric.id=' + metric;
+        loadTimeSeries: function(params, graph) {
+            var since  = new Date(params.since);
+            var dataUrl = hosturl + '/stroubles1/timeseries?metric.id=' + params.what.id + '&since=' + since.toISOString();
             jQuery.get(dataUrl, function( response ) {
                 owlet.plotTimeSeries(response, name, graph);
             });
+        },
+        getParams: function() {
+            var what;
+            var since;
+            $(metricSelector + ' option:selected').each(function() {
+                what = { id: $( this ).val(), name: $( this ).text() };
+            });
+
+            since = $( '#datepicker' ).val();
+            return { what:what, since:since };
+        },
+        dateToString: function(d) {
+            return (d.getMonth()+1) + '/' + d.getDate() + '/' + d.getUTCFullYear();
+
         },
         onReady: function() {
             leapi.loadMetricList(metricSelector, 'temperature');
             $(metricSelector).change(function() {
                 $('option:selected').each(function() {
-                    leapi.loadTimeSeries($( this ).val(), $( this ).text(), graph);
+                    var params = leapi.getParams();
+                    leapi.loadTimeSeries(params, graph);
                 });
+            });
+
+            var today = new Date();
+            var yesterday = new Date();
+            yesterday.setDate(today.getDate() - 1);
+            var tdate = leapi.dateToString(yesterday);
+            $( '#datepicker' ).datepicker();
+            $( '#datepicker' ).datepicker('setDate', tdate);
+            $( '#datepicker' ).change(function() {
+                var date = new Date($( this ).val());
+                if (date > today) {
+                    $( '#datepicker' ).datepicker('setDate', leapi.dateToString(today));
+                }
+               
+                var params = leapi.getParams();
+                leapi.loadTimeSeries(params, graph);
             });
             /* refresh data for selected metric every 30 seconds */
             /* TODO: set refresh time based on refresh time of metric

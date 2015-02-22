@@ -2,6 +2,7 @@
 'use strict';
 // generated on 2015-02-16 using generator-gulp-webapp 0.2.0
 var gulp = require('gulp');
+var ignore = require('gulp-ignore');
 var $ = require('gulp-load-plugins')();
 
 gulp.task('styles', function () {
@@ -17,6 +18,7 @@ gulp.task('styles', function () {
 
 gulp.task('jshint', function () {
   return gulp.src('app/scripts/**/*.js')
+        .pipe(ignore.exclude(/require\.js/))
     .pipe($.jshint())
     .pipe($.jshint.reporter('jshint-stylish'))
     .pipe($.jshint.reporter('fail'));

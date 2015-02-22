@@ -15,5 +15,5 @@
   "unused": true,
   "strict": true,
   "jquery": true,
-  "globals": { "Rickshaw": true, "d3": true }
+  "globals": { "Rickshaw": true, "d3": true, "_": true }
 }

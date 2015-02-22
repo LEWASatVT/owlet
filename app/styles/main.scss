@@ -4,6 +4,29 @@ $icon-font-path: '../bower_components/bootstrap-sass-official/assets/fonts/boots
 @import "../../bower_components/bootstrap-sass-official/assets/stylesheets/_bootstrap.scss";
 // endbower
 
+#chart_container {
+    position: relative;
+    font-family: Arial, Helvetica, sans-serif;
+}
+#chart {
+    position: relative;
+    left: 40px;
+}
+#y_axis {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 40px;
+}
+
+#y_label {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 200px;
+    @include rotate(-90deg);
+}
+
 .browsehappy {
   margin: 0.2em 0;
   background: #ccc;

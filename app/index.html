@@ -14,27 +14,15 @@
 
     <!-- build:css styles/main.css -->
     <link rel="stylesheet" href="styles/main.css">
+    <link type="text/css" rel="stylesheet" href="styles/overcast/jquery-ui.min.css" />
+    <link type="text/css" rel="stylesheet" href="styles/overcast/theme.css" />
     <!-- endbuild -->
     <link type="text/css" rel="stylesheet" href="styles/rickshaw.min.css" />
-
+    
     <!-- build:js scripts/vendor/modernizr.js -->
     <script src="../bower_components/modernizr/modernizr.js"></script>
     <!-- endbuild -->
     <style>
-      #chart_container {
-      position: relative;
-      font-family: Arial, Helvetica, sans-serif;
-      }
-      #chart {
-      position: relative;
-      left: 40px;
-      }
-      #y_axis {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      width: 40px;
-      }
     </style>
 
   </head>
@@ -81,9 +69,11 @@
 
     <!-- build:js scripts/vendor.js -->
     <!-- bower:js -->
-    <script src="../bower_components/jquery/dist/jquery.js"></script>
+    <script src="../bower_components/jquery/jquery.js"></script>
     <script src="../bower_components/d3/d3.js"></script>
     <script src="../bower_components/rickshaw/rickshaw.js"></script>
+    <script src="../bower_components/underscore/underscore.js"></script>
+    <script src="../bower_components/jquery-ui/jquery-ui.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
 
@@ -103,7 +93,7 @@
         <!-- endbuild -->
 
         <!-- build:js scripts/main.js -->
-        <script src="scripts/main.js"></script>
+        <script data-main="scripts/main" src="scripts/main.js"></script>
         <!-- endbuild -->
 </body>
 </html>

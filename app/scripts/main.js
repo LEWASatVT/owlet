@@ -1,3 +1,10 @@
+/*owlet = function(){
+    var init = function(baseurl) {
+    }
+    return{init:init};
+}();
+// */
+
 (function(){
     'use strict';
 
@@ -62,9 +69,11 @@
                 return { x: date.getTime()/1000, y: d[0] };
             });
         },
+        /* jshint devel:true */
         plotTimeSeries: function(timeseries,  name, graph) {
             var units = timeseries._embedded.units;
-            var svg = $('svg.rickshaw_graph');
+            //var svg = $('svg.rickshaw_graph');
+            /*
             var $yAxis = d3.select('#y_axis');
             var $ele = $('.y_label', $yAxis);
             var newText = 'text'; //document.createElement('text'); //'<text class="y_label">' + units.name + ' (' + units.abbv + ')</text>';
@@ -73,20 +82,20 @@
             } else {
                 $ele.replaceWith(newText);
             }
-            
+            */
+            $('#y_label').text(units.name + ' (' + units.abbv + ')');
+
             /*d3.select('#y_axis').append('text')
                 .attr("class", "y_label")
                 .attr("text-anchor", "end")
                 .attr("y", 6)
                 .attr("dy", ".75em")
-                .text(units.name + ' (' + units.abbv + ')');*/
-            console.log('units: ' + units.abbv)
+                .*/
             var data = owlet.timeseriesToRickshaw(timeseries);
             series[0] = { name: name, data: data, color: 'lightblue' };
             graph.update();
         }
     };
-    
     var leapi = {              
         loadMetricList: function(el, select) {
             jQuery.get(hosturl + '/metrics', function ( response ) {

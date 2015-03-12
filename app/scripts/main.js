@@ -9,21 +9,30 @@
     'use strict';
 
     var hosturl = 'http://lewaspedia.enge.vt.edu:8080';
-
+    var siteId = 'stroubles1';
+    
     /* the DOM select string that should identify the <select> element
      * containing the metric options */
     var metricSelector ='#metric_dropdown';
 
-    var series = [ {
-        color: 'steelblue',
-        data: [ ]
-    }];
+    var series = [
+        {
+            color: 'steelblue',
+            data: [ ],
+            renderer: 'bar'
+        },
+        {
+            data: [ ],
+            renderer: 'scatterplot'
+        }
+    ];
 
     var graph = new Rickshaw.Graph( {
         element: document.querySelector('#chart'),
         width: 580,
         height: 250,
-        renderer: 'bar',
+        renderer: 'multi',
+        dotSize: 2,
         series: series
     } );
 
@@ -71,44 +80,48 @@
         },
         /* jshint devel:true */
         plotTimeSeries: function(timeseries,  name, graph) {
-            var units = timeseries._embedded.units;
-            //var svg = $('svg.rickshaw_graph');
-            /*
-            var $yAxis = d3.select('#y_axis');
-            var $ele = $('.y_label', $yAxis);
-            var newText = 'text'; //document.createElement('text'); //'<text class="y_label">' + units.name + ' (' + units.abbv + ')</text>';
-            if (!$ele[0]) {
-                $yAxis.append(newText);
+            var palette = new Rickshaw.Color.Palette();
+            series.length = 0;
+            var units = [];
+            if (timeseries.constructor === Array) {
+                // pass
+                _.each(timeseries, function (ts) {
+                    var myUnits = ts._embedded.units;
+                    var data = owlet.timeseriesToRickshaw(ts);
+                    series.push( { name:name + ts._embedded.instrument.name + ' (' + myUnits.abbv + ')',
+                                   data: data, color: palette.color(), renderer: 'scatterplot'
+                                 } );
+                    units.push(myUnits);
+                });
             } else {
-                $ele.replaceWith(newText);
+                var myUnits = timeseries._embedded.units;
+                var data = owlet.timeseriesToRickshaw(timeseries);
+                series[0] = { name:name + timeseries._embedded.instrument.name + ' (' + myUnits.abbv + ')',
+                              data: data, color: 'lightblue', renderer: 'bar'
+                            };
+                units.push(myUnits);
             }
-            */
-            $('#y_label').text(units.name + ' (' + units.abbv + ')');
-
-            /*d3.select('#y_axis').append('text')
-                .attr("class", "y_label")
-                .attr("text-anchor", "end")
-                .attr("y", 6)
-                .attr("dy", ".75em")
-                .*/
-            var data = owlet.timeseriesToRickshaw(timeseries);
-            series[0] = { name: name, data: data, color: 'lightblue' };
-            graph.update();
+            $('#y_label').text(units[0].name + ' (' + units[0].abbv + ')');
+            graph.update();    
         }
     };
     var leapi = {              
+        /* jshint devel:true */
+        metrics: {},
         loadMetricList: function(el, selected) {
-            jQuery.get(hosturl + '/metrics', function ( response ) {
+            jQuery.get(hosturl + '/sites/' + siteId + '/metrics', function ( response ) {
+                leapi.metrics = response;
                 var selectEl = $(el);
                 /* selectedId is always a number, see
                  * http://stackoverflow.com/questions/3546900/jquery-get-text-as-number */
                 var selectedId = +(selectEl.select('option:selected').val());
-
+                
                 selectEl.children().remove();
-                _.chain(response)
+                _.chain(leapi.metrics)
                     .filter(function(item) { return item.observationCount > 1; })
                     .sortBy( function(a) { return a.medium; } )
                     .each( function(item) {
+                        /*console.log('metric id ' + item.id + ' has timeseries ' + item._links.timeseries.href);*/
                         var optionEl = $('<option />').val(item.id).text(item.medium + ' ' + item.name);
                         if (item.id === selectedId) {
                             optionEl.prop('selected',true);
@@ -124,7 +137,11 @@
         },
         loadTimeSeries: function(params, graph) {
             var since  = new Date(params.since);
-            var dataUrl = hosturl + '/stroubles1/timeseries?metric.id=' + params.what.id + '&since=' + since.toISOString();
+            var metric = leapi.metrics.find(function(element)
+                                            {
+                                                return parseInt(element.id) === parseInt(params.what.id);
+                                            }); 
+            var dataUrl = hosturl + metric._links.timeseries.href + '?since=' + since.toISOString();
             jQuery.get(dataUrl, function( response ) {
                 owlet.plotTimeSeries(response, name, graph);
             });

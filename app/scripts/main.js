@@ -107,10 +107,15 @@
     };
     var leapi = {              
         /* jshint devel:true */
-        metrics: {},
+        metrics: [],
         loadMetricList: function(el, selected) {
-            jQuery.get(hosturl + '/sites/' + siteId + '/metrics', function ( response ) {
-                leapi.metrics = response;
+            /*jQuery.get(hosturl + '/sites/' + siteId + '/metrics', function ( response ) {*/
+
+            jQuery.get(hosturl + '/sites/' + siteId + '/metricgroups', function (response) {
+                _.each(response, function(element) {
+                    leapi.metrics.push.apply(leapi.metrics, element._embedded.metrics);
+                });
+
                 var selectEl = $(el);
                 /* selectedId is always a number, see
                  * http://stackoverflow.com/questions/3546900/jquery-get-text-as-number */
@@ -118,7 +123,7 @@
                 
                 selectEl.children().remove();
                 _.chain(leapi.metrics)
-                    .filter(function(item) { return item.observationCount > 1; })
+                    /*.filter(function(item) { return item.observationCount > 1; })*/
                     .sortBy( function(a) { return a.medium; } )
                     .each( function(item) {
                         /*console.log('metric id ' + item.id + ' has timeseries ' + item._links.timeseries.href);*/

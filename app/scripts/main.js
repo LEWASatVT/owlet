@@ -112,9 +112,10 @@
             /*jQuery.get(hosturl + '/sites/' + siteId + '/metrics', function ( response ) {*/
 
             jQuery.get(hosturl + '/sites/' + siteId + '/metricgroups', function (response) {
-                _.each(response, function(element) {
-                    leapi.metrics.push.apply(leapi.metrics, element._embedded.metrics);
-                });
+                var groupsLength = response.length;
+                for ( var i =0; i < groupsLength; i++) {
+                    leapi.metrics.push.apply(leapi.metrics, response[i]._embedded.metrics);
+                }
 
                 var selectEl = $(el);
                 /* selectedId is always a number, see
@@ -142,10 +143,20 @@
         },
         loadTimeSeries: function(params, graph) {
             var since  = new Date(params.since);
-            var metric = leapi.metrics.find(function(element)
-                                            {
-                                                return parseInt(element.id) === parseInt(params.what.id);
-                                            }); 
+            var metric = {};
+            var metricLength = leapi.metrics.length;
+            for( var i = 0; i < metricLength; i++ ) {
+                if ( parseInt(leapi.metrics[i].id) === parseInt(params.what.id) ) {
+                    metric = leapi.metrics[i];
+                }
+            }
+
+            //leapi.metrics.find does not work in Chromium
+            /*metric = leapi.metrics.find(function(element)
+                                                {
+                                                    return parseInt(element.id) === parseInt(params.what.id);
+                                                });*/
+            //};
             var dataUrl = hosturl + metric._links.timeseries.href + '?since=' + since.toISOString();
             jQuery.get(dataUrl, function( response ) {
                 owlet.plotTimeSeries(response, name, graph);
